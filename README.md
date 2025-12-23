@@ -1,43 +1,37 @@
-📧 Spam Mail Detection Web App
+# 📧 Spam Mail Detection Web App
 
-A machine learning based web application that detects whether an email/message is Spam or Legitimate (Ham) using TF-IDF + Multinomial Naive Bayes, deployed with Flask.
+A machine learning based web application that detects whether an email/message is **Spam** or **Legitimate (Ham)** using **TF-IDF + Multinomial Naive Bayes**, deployed with **Flask**.
 
-🚀 Features
+---
 
-Spam vs Legitimate email detection
+## 🧠 Tech Stack
+- Python
+- Pandas
+- Scikit-learn
+- Flask
+- HTML, CSS
 
-Machine Learning (Naive Bayes)
+---
 
-TF-IDF text vectorization
+## 📂 Project Structure
 
-Web-based UI using Flask
-
-Easy to use & beginner friendly
-
-🧠 Tech Stack
-
-Python
-
-Pandas
-
-Scikit-learn
-
-Flask
-
-HTML, CSS
-
-📂 Project Structure
+```text
 spam-mail-detected/
+│
 ├── spam_detector/
 │   ├── app.py
 │   ├── templates/
+│   │   └── index.html
 │   ├── static/
+│   │   └── style.css
+│
 ├── notebook/
 │   └── spam_training.ipynb
+│
 ├── dataset/
 │   └── spam.csv
-├── requirements.txt
-├── README.md
+│
+├── requi
 
 ⚙️ Installation & Run
 
@@ -72,3 +66,4 @@ Congratulations! You have won a free lottery.
 Output:
 
 🚨 Spam Email
+
