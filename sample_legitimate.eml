@@ -1,0 +1,23 @@
+Return-Path: <john@company.com>
+Delivered-To: user@example.com
+Received: by mail.example.com (Postfix, from userid 1001)
+	id 67890; Mon, 23 Dec 2024 14:00:00 +0000 (UTC)
+From: "John Smith" <john@company.com>
+To: user@example.com
+Subject: Meeting Tomorrow at 3 PM
+Date: Mon, 23 Dec 2024 14:00:00 +0000
+Message-ID: <67890@company.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hi,
+
+Just wanted to confirm our meeting tomorrow at 3 PM in the conference room.
+
+We'll be discussing the quarterly reports and planning for next month.
+
+Please let me know if you need to reschedule.
+
+Thanks,
+John Smith
+Project Manager

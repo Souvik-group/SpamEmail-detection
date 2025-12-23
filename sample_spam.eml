@@ -1,0 +1,27 @@
+Return-Path: <spam@example.com>
+Delivered-To: user@example.com
+Received: by mail.example.com (Postfix, from userid 1001)
+	id 12345; Mon, 23 Dec 2024 10:00:00 +0000 (UTC)
+From: "Winner Notification" <winner@lottery.com>
+To: user@example.com
+Subject: URGENT: You have won $1,000,000!
+Date: Mon, 23 Dec 2024 10:00:00 +0000
+Message-ID: <12345@lottery.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Congratulations! You have been selected as the winner of our international lottery!
+
+You have won $1,000,000 USD! 
+
+To claim your prize, please reply with your:
+- Full name
+- Phone number  
+- Bank account details
+
+This offer expires in 24 hours. Act now!
+
+Click here to claim: http://suspicious-link.com
+
+Best regards,
+Lottery Commission

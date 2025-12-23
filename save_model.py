@@ -1,0 +1,1 @@
+# Add this code to your .ipynb file after training the model\n\n# Save the trained model\nwith open('model.pkl', 'wb') as f:\n    pickle.dump(model, f)\n\n# Save the vectorizer\nwith open('vectorizer.pkl', 'wb') as f:\n    pickle.dump(vectorizer, f)\n\nprint(\"Model and vectorizer saved successfully!\")
