@@ -12,26 +12,31 @@ A machine learning based web application that detects whether an email/message i
 - HTML, CSS
 
 ---
-
 ## 📂 Project Structure
 
 ```text
-spam-mail-detected/
+SPAM_EMAIL/
+│
+├── archive/
 │
 ├── spam_detector/
-│   ├── app.py
-│   ├── templates/
-│   │   └── index.html
 │   ├── static/
-│   │   └── style.css
+│   ├── templates/
+│   ├── uploads/
+│   ├── app.py              # Flask main application
+│   ├── model.pkl           # Trained ML model
+│   ├── vectorizer.pkl      # TF-IDF vectorizer
+│   ├── save_model.py       # Save trained model
+│   ├── train_model.py      # Train model script
+│   ├── train_new.py        # Retraining / experimentation
+│   ├── sample_emails.csv   # Sample input emails
+│   ├── sample_spam.eml     # Example spam email
+│   ├── sample_legitimate.eml # Example legitimate email
 │
-├── notebook/
-│   └── spam_training.ipynb
-│
-├── dataset/
-│   └── spam.csv
-│
-├── requi
+├── spam.csv                # Dataset
+├── Untitled1.ipynb         # Model experimentation notebook
+├── requirements.txt        # Project dependencies
+└── README.md
 
 ⚙️ Installation & Run
 
@@ -66,4 +71,5 @@ Congratulations! You have won a free lottery.
 Output:
 
 🚨 Spam Email
+
 
