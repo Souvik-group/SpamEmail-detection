@@ -1,36 +1,466 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Spam Email Detector</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ AI Spam Detector</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 15px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .tab-btn:hover::before {
+            left: 100%;
+        }
+
+        .tab-btn.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: white;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        textarea, input[type="file"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        textarea::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 80px;
+        }
+
+        .file-upload:hover .file-upload-label {
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .result.spam {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .result.safe {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .result h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-card h4 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        .results-table {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .result-row {
+            display: grid;
+            grid-template-columns: 50px 1fr 100px 80px;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .result-row:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .result-row.spam {
+            border-left: 4px solid #ef4444;
+        }
+
+        .result-row.safe {
+            border-left: 4px solid #22c55e;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-card {
+                padding: 20px;
+            }
+            
+            .result-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Spam Email Detector</h1>
-        
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('single')">Single Message</button>
-            <button class="tab-btn" onclick="showTab('batch')">Batch Upload</button>
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> AI Spam Detector</h1>
+            <p>Advanced machine learning powered email security</p>
         </div>
         
-        <div id="single" class="tab-content active">
-            <form id="spamForm">
-                <textarea id="message" placeholder="Enter email message here..." required></textarea>
-                <button type="submit">Check Email</button>
-            </form>
-            <div id="result"></div>
-        </div>
-        
-        <div id="batch" class="tab-content">
-            <form id="uploadForm" enctype="multipart/form-data">
-                <div class="file-upload">
-                    <input type="file" id="csvFile" accept=".csv,.eml" required>
-                    <label for="csvFile">Choose CSV or EML File</label>
-                    <p>CSV: must have 'message' column<br>EML: email message files</p>
-                </div>
-                <button type="submit">Process File</button>
-            </form>
-            <div id="batchResult"></div>
+        <div class="main-card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('single')">
+                    <i class="fas fa-envelope"></i> Single Message
+                </button>
+                <button class="tab-btn" onclick="showTab('batch')">
+                    <i class="fas fa-upload"></i> Batch Upload
+                </button>
+            </div>
+            
+            <div id="single" class="tab-content active">
+                <form id="spamForm">
+                    <div class="form-group">
+                        <label for="message"><i class="fas fa-edit"></i> Email Content</label>
+                        <textarea id="message" placeholder="Paste your email content here for analysis..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-search"></i> Analyze Email
+                    </button>
+                </form>
+                <div id="result"></div>
+            </div>
+            
+            <div id="batch" class="tab-content">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label><i class="fas fa-file-upload"></i> Upload File</label>
+                        <div class="file-upload">
+                            <input type="file" id="csvFile" accept=".csv,.eml" required>
+                            <div class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                                <div>
+                                    <div>Drop files here or click to browse</div>
+                                    <small>Supports CSV and EML files</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-cogs"></i> Process File
+                    </button>
+                </form>
+                <div id="batchResult"></div>
+            </div>
         </div>
     </div>
 
@@ -48,7 +478,12 @@
             const formData = new FormData();
             formData.append('message', message);
             
-            document.getElementById('result').innerHTML = '<p>Processing...</p>';
+            document.getElementById('result').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Analyzing email content...</span>
+                </div>
+            `;
             
             try {
                 const response = await fetch('/predict', {
@@ -59,13 +494,22 @@
                 const result = await response.json();
                 
                 if (result.error) {
-                    document.getElementById('result').innerHTML = `<p class="error">${result.error}</p>`;
+                    document.getElementById('result').innerHTML = `<div class="error"><i class="fas fa-exclamation-triangle"></i> ${result.error}</div>`;
                 } else {
-                    document.getElementById('result').innerHTML = 
-                        `<h3>Result: ${result.prediction}</h3><p>Confidence: ${result.confidence}</p>`;
+                    const isSpam = result.prediction === 'Spam';
+                    const icon = isSpam ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+                    const className = isSpam ? 'spam' : 'safe';
+                    
+                    document.getElementById('result').innerHTML = `
+                        <div class="result ${className}">
+                            <h3><i class="${icon}"></i> ${result.prediction}</h3>
+                            <p><strong>Confidence:</strong> ${result.confidence}</p>
+                            <p>${isSpam ? 'This email appears to be spam. Exercise caution.' : 'This email appears to be legitimate.'}</p>
+                        </div>
+                    `;
                 }
             } catch (error) {
-                document.getElementById('result').innerHTML = '<p class="error">Error processing request</p>';
+                document.getElementById('result').innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i> Error processing request</div>';
             }
         });
         
@@ -75,7 +519,12 @@
             const formData = new FormData();
             formData.append('file', file);
             
-            document.getElementById('batchResult').innerHTML = '<p>Processing...</p>';
+            document.getElementById('batchResult').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Processing file...</span>
+                </div>
+            `;
             
             try {
                 const response = await fetch('/upload', {
@@ -86,27 +535,59 @@
                 const result = await response.json();
                 
                 if (result.error) {
-                    document.getElementById('batchResult').innerHTML = `<p class="error">${result.error}</p>`;
+                    document.getElementById('batchResult').innerHTML = `<div class="error"><i class="fas fa-exclamation-triangle"></i> ${result.error}</div>`;
                 } else {
-                    let html = `<div class="summary">
-                        <h3>Summary</h3>
-                        <p>Total: ${result.summary.total} | Spam: ${result.summary.spam} | Not Spam: ${result.summary.not_spam}</p>
-                    </div><div class="results-table">`;
+                    let html = `
+                        <div class="stats">
+                            <div class="stat-card">
+                                <h4>${result.summary.total}</h4>
+                                <p><i class="fas fa-envelope"></i> Total Emails</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>${result.summary.spam}</h4>
+                                <p><i class="fas fa-exclamation-triangle"></i> Spam Detected</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>${result.summary.not_spam}</h4>
+                                <p><i class="fas fa-check-circle"></i> Safe Emails</p>
+                            </div>
+                        </div>
+                        <div class="results-table">
+                    `;
                     
                     result.results.forEach(r => {
-                        html += `<div class="result-row ${r.prediction === 'Spam' ? 'spam' : 'not-spam'}">
-                            <span class="row-num">${r.row}</span>
-                            <span class="message">${r.message}</span>
-                            <span class="prediction">${r.prediction}</span>
-                            <span class="confidence">${r.confidence}</span>
-                        </div>`;
+                        const className = r.prediction === 'Spam' ? 'spam' : 'safe';
+                        const icon = r.prediction === 'Spam' ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+                        
+                        html += `
+                            <div class="result-row ${className}">
+                                <span style="color: white; font-weight: bold;">#${r.row}</span>
+                                <span style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">${r.message}</span>
+                                <span style="color: white; font-weight: 500;"><i class="${icon}"></i> ${r.prediction}</span>
+                                <span style="color: rgba(255,255,255,0.8);">${r.confidence}</span>
+                            </div>
+                        `;
                     });
                     
                     html += '</div>';
                     document.getElementById('batchResult').innerHTML = html;
                 }
             } catch (error) {
-                document.getElementById('batchResult').innerHTML = '<p class="error">Error processing file</p>';
+                document.getElementById('batchResult').innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i> Error processing file</div>';
+            }
+        });
+        
+        // File upload visual feedback
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                document.querySelector('.file-upload-label').innerHTML = `
+                    <i class="fas fa-file-check fa-2x"></i>
+                    <div>
+                        <div>${fileName}</div>
+                        <small>File selected successfully</small>
+                    </div>
+                `;
             }
         });
     </script>
